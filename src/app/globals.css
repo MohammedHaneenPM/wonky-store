@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --wonky-cream: #F8EDE7;
+  --wonky-rust: #A93717;
+  --wonky-purple: #370B74;
+  --wonky-orange-accent: #FF5A26;
+  --wonky-border: #EFE4DC;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-wonky-cream: #F8EDE7;
+  --color-wonky-rust: #A93717;
+  --color-wonky-purple: #370B74;
+  --color-wonky-orange: #FF5A26;
+  --font-delius: var(--font-delius), cursive;
+  --font-public-sans: var(--font-public-sans), sans-serif;
+  --font-body: Arial, Helvetica, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: #FFFFFF;
+  color: #2D2D2D;
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8EDE7;
+}
+::-webkit-scrollbar-thumb {
+  background: #A93717;
+  border-radius: 4px;
+}
+
+.font-delius {
+  font-family: var(--font-delius), cursive;
+}
+
+.font-public-sans {
+  font-family: var(--font-public-sans), sans-serif;
 }
