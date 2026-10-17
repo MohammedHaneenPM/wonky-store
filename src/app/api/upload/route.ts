@@ -1,36 +1,27 @@
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
+  const { searchParams } = new URL(request.url);
+  const filename = searchParams.get("filename") || `product-${Date.now()}.png`;
+
+  if (!request.body) {
+    return NextResponse.json({ error: "No body provided" }, { status: 400 });
+  }
 
   try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async (pathname) => {
-        // Authenticate or validate file pathname here
-        return {
-          allowedContentTypes: [
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-            "image/gif",
-          ],
-          maximumSizeInBytes: 5 * 1024 * 1024, // 5MB limit
-        };
-      },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Callback after file is saved to Vercel Blob
-        console.log("Blob upload completed:", blob.url);
-      },
+    // Direct server-side upload to Vercel Blob
+    const blob = await put(filename, request.body, {
+      access: "public",
+      addRandomSuffix: true,
     });
 
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json(blob);
   } catch (error) {
+    console.error("Vercel Blob server-side upload error:", error);
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }

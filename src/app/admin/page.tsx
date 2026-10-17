@@ -43,7 +43,7 @@ export default function AdminDashboardPage() {
 
   const [isUploading, setIsUploading] = useState(false);
 
-  // Handle image file upload with Vercel Blob and fallback
+  // Handle image file upload directly to Vercel Blob
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -51,24 +51,29 @@ export default function AdminDashboardPage() {
     setIsUploading(true);
 
     try {
-      // 1. Attempt Vercel Blob upload
-      const { upload } = await import("@vercel/blob/client");
-      const newBlob = await upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/upload",
-      });
+      // 1. Direct POST to our server-side Vercel Blob endpoint
+      const response = await fetch(
+        `/api/upload?filename=${encodeURIComponent(file.name)}`,
+        {
+          method: "POST",
+          body: file,
+        }
+      );
 
-      if (newBlob?.url) {
-        setCustomUploadedImg(newBlob.url);
-        setSelectedImg(newBlob.url);
-        setIsUploading(false);
-        return;
+      if (response.ok) {
+        const blobData = await response.json();
+        if (blobData?.url) {
+          setCustomUploadedImg(blobData.url);
+          setSelectedImg(blobData.url);
+          setIsUploading(false);
+          return;
+        }
       }
     } catch (err) {
-      console.warn("Vercel Blob upload endpoint not active yet, using local data URL:", err);
+      console.warn("Direct blob upload failed, falling back to data URL:", err);
     }
 
-    // 2. Fallback to FileReader data URL
+    // 2. Fallback to FileReader if Vercel token is not active locally
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
